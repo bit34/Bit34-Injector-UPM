@@ -1,7 +1,0 @@
-{
-    "name": "com.bit34games.di",
-    "displayName": "Bit34 - Dependency injection",
-    "version": "1.1.0",
-    "unity": "2018.4",
-    "description": "This is a small dependency injection library developed to be used with our other in-house libraries."
-}
