@@ -16,3 +16,6 @@ nupkg/
 
 # Visual Studio 2015
 .vs/
+
+Bit34-Injector.deps.json
+Bit34-Injector.pdb
