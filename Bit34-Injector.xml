@@ -1,0 +1,440 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Bit34-Injector</name>
+    </assembly>
+    <members>
+        <member name="T:Com.Bit34Games.Injector.Binding.IInjectionBinding">
+            <summary>
+            Read-only view of a single registered binding — its binding type, the underlying
+            <see cref="T:Com.Bit34Games.Injector.Provider.IInstanceProvider"/>, and any restrictions attached to it. Inherits the fluent
+            <see cref="T:Com.Bit34Games.Injector.Binding.IInjectionBindingOptions"/> surface so consumers can keep chaining.
+            </summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.Binding.IInjectionBinding.BindingType">
+            <summary>The type that consumers request when they ask the injector for this binding.</summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.Binding.IInjectionBinding.InstanceProvider">
+            <summary>The provider that creates or holds the instance returned for this binding.</summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.Binding.IInjectionBinding.RestrictionList">
+            <summary>
+            Restrictions attached via <see cref="M:Com.Bit34Games.Injector.Binding.IInjectionBindingOptions.RestrictToNamespace(System.String)"/>
+            (and friends). Read-only by design — only the binding itself appends through the fluent API.
+            </summary>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Binding.IInjectionBindingOptions">
+            <summary>
+            Fluent surface for attaching restrictions to a binding after its provider has been chosen.
+            Returned by <see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToValue(`0)"/> and
+            <see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToType``1"/>.
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.IInjectionBindingOptions.RestrictToNamespace(System.String)">
+            <summary>
+            Restrict injection of this binding to containers whose namespace matches
+            <paramref name="namespaceName"/> exactly, or is nested inside it
+            (e.g. <c>"Game.UI"</c> matches <c>"Game.UI.MainMenu"</c>).
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.IInjectionBindingOptions.RestrictToNamespace(System.String[])">
+            <summary>
+            Restrict injection of this binding to containers whose namespace matches any of the
+            given namespaces (exact or nested).
+            </summary>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Binding.IInjectionRestriction">
+            <summary>
+            Pluggable predicate consulted before the injector sets a value on a target member.
+            Implement to add custom rules (e.g. namespace, attribute, or assembly checks).
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.IInjectionRestriction.Check(System.Object,System.Type,Com.Bit34Games.Injector.Provider.IInstanceProvider)">
+            <summary>
+            Return <c>true</c> when <paramref name="container"/> is allowed to receive an instance
+            of <paramref name="typeToInject"/> from <paramref name="provider"/>; <c>false</c> to
+            block this injection (the injector then records an
+            <see cref="F:Com.Bit34Games.Injector.Error.InjectionErrorType.InjectionRestricted"/> error).
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.IInjectionRestriction.GetInfo">
+            <summary>Human-readable description of the restriction, used in error messages.</summary>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Binding.NamespaceRestriction">
+            <summary>
+            Built-in <see cref="T:Com.Bit34Games.Injector.Binding.IInjectionRestriction"/> that allows a binding to be injected only
+            into containers whose namespace matches one of the configured namespaces exactly, or is
+            nested within one of them (e.g. <c>"Game.UI"</c> matches <c>"Game.UI.MainMenu"</c>).
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.NamespaceRestriction.#ctor(System.String)">
+            <summary>Restrict to a single namespace.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.NamespaceRestriction.#ctor(System.String[])">
+            <summary>Restrict to any namespace in <paramref name="namespaceNames"/>.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.NamespaceRestriction.Check(System.Object,System.Type,Com.Bit34Games.Injector.Provider.IInstanceProvider)">
+            <inheritdoc />
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Binding.NamespaceRestriction.GetInfo">
+            <inheritdoc />
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Error.InjectionError">
+            <summary>
+            One recorded error from the injector — the structured <see cref="T:Com.Bit34Games.Injector.Error.InjectionErrorType"/>
+            code plus a human-readable message that includes binding/provider type names and caller
+            source location.
+            </summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionError.Error">
+            <summary>Structured error code suitable for switching on in tests.</summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionError.Message">
+            <summary>Pre-formatted error message including binding/provider type and source location.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Error.InjectionError.#ctor(Com.Bit34Games.Injector.Error.InjectionErrorType,System.String)">
+            <summary>Create a new <see cref="T:Com.Bit34Games.Injector.Error.InjectionError"/>. Constructed by the injector — consumers should not call this directly.</summary>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Error.InjectionErrorType">
+            <summary>
+            Enumeration of structured error codes produced by the injector. Carried by both
+            <see cref="T:Com.Bit34Games.Injector.Error.InjectionError"/> (non-throwing mode) and <see cref="T:Com.Bit34Games.Injector.Error.InjectionException"/>
+            (throwing mode).
+            </summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionErrorType.AlreadyAddedBindingForType">
+            <summary>A binding was added more than once for the same type.</summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionErrorType.AlreadyAddedTypeWithDifferentProvider">
+            <summary>A provider was already registered for the requested provider type with a different provider implementation.</summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionErrorType.TypeNotAssignableToTarget">
+            <summary>The provider type passed to <c>ToType</c> is not assignable to the binding type.</summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionErrorType.ValueNotAssignableToBindingType">
+            <summary>The value passed to <c>ToValue</c> is not assignable to the binding type.</summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionErrorType.CanNotFindBindingForType">
+            <summary>No binding has been registered for the requested type.</summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionErrorType.BindingAfterInjection">
+            <summary>A binding was attempted after the bind phase ended (after the first injection).</summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionErrorType.InjectionRestricted">
+            <summary>The injection was blocked by an <see cref="T:Com.Bit34Games.Injector.Binding.IInjectionRestriction"/>.</summary>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Error.InjectionException">
+            <summary>
+            Exception thrown by the injector in throwing mode (constructor parameter
+            <c>shouldThrowException = true</c>). Carries the structured
+            <see cref="T:Com.Bit34Games.Injector.Error.InjectionErrorType"/> in addition to the formatted message.
+            </summary>
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Error.InjectionException.Error">
+            <summary>Structured error code suitable for switching on in catch blocks.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Error.InjectionException.#ctor(Com.Bit34Games.Injector.Error.InjectionErrorType,System.String)">
+            <summary>Create a new <see cref="T:Com.Bit34Games.Injector.Error.InjectionException"/>. Constructed by the injector — consumers should not call this directly.</summary>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.IInjector">
+            <summary>
+            Public entry point for binding types and injecting dependencies.
+            </summary>
+            <remarks>
+            <para>Lifecycle is bind-then-use: register every binding through
+            <see cref="M:Com.Bit34Games.Injector.IInjector.AddBinding``1"/> first, then call <see cref="M:Com.Bit34Games.Injector.IInjector.InjectInto(System.Object,Com.Bit34Games.Injector.IMemberInjector)"/>,
+            <see cref="M:Com.Bit34Games.Injector.IInjector.GetInstance``1"/>, or <see cref="M:Com.Bit34Games.Injector.IInjector.GetAssignableInstances``1"/>. Once any of
+            those consumer methods runs, the bind phase ends and further <see cref="M:Com.Bit34Games.Injector.IInjector.AddBinding``1"/>
+            calls produce a <see cref="F:Com.Bit34Games.Injector.Error.InjectionErrorType.BindingAfterInjection"/> error.</para>
+            <para>All bindings are singletons — every consumer of a bound type receives the same
+            instance.</para>
+            </remarks>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.IInjector.AddBinding``1">
+            <summary>
+            Begin a fluent binding for type <typeparamref name="T"/>. Complete it with
+            <see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToValue(`0)"/> or
+            <see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToType``1"/>.
+            </summary>
+            <typeparam name="T">The type that consumers will request (the "binding type").</typeparam>
+            <returns>
+            A setter to choose how this binding resolves. In non-throwing mode, the returned
+            setter is a no-op when the call is invalid (duplicate binding, or after the bind
+            phase has ended) so chained calls remain safe — check
+            <see cref="P:Com.Bit34Games.Injector.IInjectorTester.HasErrors"/> after the bind phase.
+            </returns>
+            <exception cref="T:Com.Bit34Games.Injector.Error.InjectionException">
+            Thrown when <c>shouldThrowException</c> is on and either the type is already bound
+            or the bind phase has ended.
+            </exception>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.IInjector.InjectInto(System.Object,Com.Bit34Games.Injector.IMemberInjector)">
+            <summary>
+            Set every <c>[Inject]</c>-tagged field and writable property on
+            <paramref name="container"/> using the registered bindings.
+            </summary>
+            <param name="container">Object whose injectable members should be set.</param>
+            <param name="injectionOverride">
+            Optional per-member hook that can handle a specific field/property itself; returning
+            <c>true</c> from <see cref="T:Com.Bit34Games.Injector.IMemberInjector"/> skips the default lookup for that member.
+            </param>
+            <remarks>
+            First call to <c>InjectInto</c> ends the binding phase.
+            </remarks>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.IInjector.GetInstance``1">
+            <summary>
+            Resolve a single instance for the binding type <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">The binding type.</typeparam>
+            <returns>
+            The bound instance, or <c>default(T)</c> if no binding is registered and the injector
+            is in non-throwing mode. Calling code should check
+            <see cref="P:Com.Bit34Games.Injector.IInjectorTester.HasErrors"/> before using the result in that mode.
+            </returns>
+            <exception cref="T:Com.Bit34Games.Injector.Error.InjectionException">
+            Thrown when <c>shouldThrowException</c> is on and no binding exists for
+            <typeparamref name="T"/>.
+            </exception>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.IInjector.GetAssignableInstances``1">
+            <summary>
+            Enumerate every registered provider whose instance is assignable to
+            <typeparamref name="T"/>.
+            </summary>
+            <typeparam name="T">A base type or interface to filter providers by.</typeparam>
+            <returns>
+            Enumerable of the matching instances; safe to <c>foreach</c> over directly. The
+            result set is cached per <typeparamref name="T"/> on first call; providers added
+            after that call for the same <typeparamref name="T"/> will not appear (this can't
+            happen with the default bind-then-use lifecycle).
+            </returns>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.IInjectorTester">
+            <summary>
+            Diagnostic surface for inspecting an injector's recorded errors and registration counts.
+            </summary>
+            <remarks>
+            Most useful when the injector is constructed with <c>shouldThrowException = false</c>
+            (development and tests), where errors accumulate instead of throwing immediately.
+            </remarks>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.IInjectorTester.HasErrors">
+            <summary>True when at least one <see cref="T:Com.Bit34Games.Injector.Error.InjectionError"/> has been recorded.</summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.IInjectorTester.BindingCount">
+            <summary>Number of bindings registered via <see cref="M:Com.Bit34Games.Injector.IInjector.AddBinding``1"/>.</summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.IInjectorTester.ProviderCount">
+            <summary>Number of underlying providers created by completed bindings.</summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.IInjectorTester.Errors">
+            <summary>
+            Recorded errors in registration order. Read-only view; <c>foreach</c>-friendly. Use
+            <c>Errors.Count</c> for the count and <c>Errors[i]</c> for indexed access.
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.IInjectorTester.HasBindingForType(System.Type)">
+            <summary>True when a binding for <paramref name="type"/> has been registered.</summary>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.IMemberInjector">
+            <summary>
+            Optional per-member injection hook passed to <see cref="M:Com.Bit34Games.Injector.IInjector.InjectInto(System.Object,Com.Bit34Games.Injector.IMemberInjector)"/>.
+            Implementations decide on a member-by-member basis whether to handle the value
+            themselves and skip the default binding lookup. The <c>Try*</c> naming follows the
+            standard .NET convention: <c>true</c> means the call did the work.
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.IMemberInjector.TryInjectIntoField(System.Reflection.FieldInfo,System.Object)">
+            <summary>
+            Optionally set <paramref name="fieldInfo"/> on <paramref name="container"/>.
+            </summary>
+            <returns>
+            <c>true</c> if this implementation handled the field — the default binding lookup is
+            skipped for this member. <c>false</c> to let the default injection run.
+            </returns>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.IMemberInjector.TryInjectIntoProperty(System.Reflection.PropertyInfo,System.Object)">
+            <summary>
+            Optionally set <paramref name="propertyInfo"/> on <paramref name="container"/>.
+            </summary>
+            <returns>
+            <c>true</c> if this implementation handled the property — the default binding lookup
+            is skipped for this member. <c>false</c> to let the default injection run.
+            </returns>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.InjectorContext">
+            <summary>
+            The default <see cref="T:Com.Bit34Games.Injector.IInjector"/> implementation. Holds bindings and producers,
+            performs the reflection-based injection, and (depending on
+            <c>shouldThrowException</c>) either throws on errors or records them for later
+            inspection through <see cref="T:Com.Bit34Games.Injector.IInjectorTester"/>.
+            </summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.InjectorContext.BindingCount">
+            <inheritdoc />
+        </member>
+        <member name="P:Com.Bit34Games.Injector.InjectorContext.ProviderCount">
+            <inheritdoc />
+        </member>
+        <member name="P:Com.Bit34Games.Injector.InjectorContext.HasErrors">
+            <inheritdoc />
+        </member>
+        <member name="P:Com.Bit34Games.Injector.InjectorContext.Errors">
+            <inheritdoc />
+        </member>
+        <member name="M:Com.Bit34Games.Injector.InjectorContext.#ctor(System.Boolean)">
+            <summary>
+            Create a new injector context.
+            </summary>
+            <param name="shouldThrowException">
+            <para>When <c>true</c> (recommended for almost all use cases, including production),
+            the injector throws an <see cref="T:Com.Bit34Games.Injector.Error.InjectionException"/> immediately when an error
+            occurs.</para>
+            <para>When <c>false</c>, errors are recorded into an internal list — intended for
+            development and tests only. In this mode <see cref="M:Com.Bit34Games.Injector.InjectorContext.AddBinding``1"/> returns a no-op
+            setter on error and <see cref="M:Com.Bit34Games.Injector.InjectorContext.GetInstance``1"/> returns <c>default(T)</c>; callers
+            must check <see cref="P:Com.Bit34Games.Injector.InjectorContext.HasErrors"/> after the bind phase to see what went wrong.
+            See README "Creating Injector" for the full contract.</para>
+            </param>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.InjectorContext.AddBinding``1">
+            <inheritdoc />
+        </member>
+        <member name="M:Com.Bit34Games.Injector.InjectorContext.InjectInto(System.Object,Com.Bit34Games.Injector.IMemberInjector)">
+            <inheritdoc />
+        </member>
+        <member name="M:Com.Bit34Games.Injector.InjectorContext.GetInstance``1">
+            <inheritdoc />
+        </member>
+        <member name="M:Com.Bit34Games.Injector.InjectorContext.GetAssignableInstances``1">
+            <inheritdoc />
+        </member>
+        <member name="M:Com.Bit34Games.Injector.InjectorContext.HasBindingForType(System.Type)">
+            <inheritdoc />
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Provider.BaseInstanceProvider">
+            <summary>
+            Convenience base for <see cref="T:Com.Bit34Games.Injector.Provider.IInstanceProvider"/> implementations that produce a
+            single backing instance. Tracks the produced instance type and exposes a protected
+            <see cref="F:Com.Bit34Games.Injector.Provider.BaseInstanceProvider._instance"/> field for derived classes to populate.
+            </summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.Provider.BaseInstanceProvider.InstanceType">
+            <inheritdoc />
+        </member>
+        <member name="F:Com.Bit34Games.Injector.Provider.BaseInstanceProvider._instance">
+            <summary>The cached instance, or <c>null</c> until first produced.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.BaseInstanceProvider.#ctor(System.Type)">
+            <summary>Create a provider whose instances will report <paramref name="instanceType"/>.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.BaseInstanceProvider.GetInstance(System.Object@,System.Boolean@)">
+            <inheritdoc />
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Provider.IInstanceProvider">
+            <summary>
+            Strategy for producing the instance returned by a binding. Two built-in implementations
+            exist: <see cref="T:Com.Bit34Games.Injector.Provider.SingleInstanceProvider"/> wraps a pre-built value, and
+            <see cref="T:Com.Bit34Games.Injector.Provider.NewInstanceProvider`1"/> lazily constructs one. Custom strategies can be
+            added by implementing this interface (or extending <see cref="T:Com.Bit34Games.Injector.Provider.BaseInstanceProvider"/>).
+            </summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.Provider.IInstanceProvider.InstanceType">
+            <summary>Concrete type of the instance this provider produces.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.IInstanceProvider.GetInstance(System.Object@,System.Boolean@)">
+            <summary>
+            Produce the instance for this provider.
+            </summary>
+            <param name="instance">Output; the produced instance.</param>
+            <param name="isNew">Output; <c>true</c> the first time the instance is produced (so
+            the injector knows to recursively inject into it), <c>false</c> on subsequent calls.</param>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1">
+            <summary>
+            Step in the binding fluent API where the consumer chooses how the binding resolves —
+            either a pre-built value (<see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToValue(`0)"/>) or a type to instantiate
+            (<see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToType``1"/>). Returned by <see cref="M:Com.Bit34Games.Injector.IInjector.AddBinding``1"/>.
+            </summary>
+            <typeparam name="TBinding">The type that consumers will request from the injector.</typeparam>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToValue(`0)">
+            <summary>
+            Bind to an existing instance of <typeparamref name="TBinding"/>.
+            </summary>
+            <param name="value">The instance returned for every consumer.</param>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToType``1">
+            <summary>
+            Bind to a type that the injector will instantiate (lazily, on first request) using
+            its parameterless constructor.
+            </summary>
+            <typeparam name="TProvider">
+            Concrete type to construct. Must be assignable to <typeparamref name="TBinding"/> and
+            must have a parameterless constructor (or a constructor where every parameter has a
+            default value).
+            </typeparam>
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Provider.NewInstanceProvider`1">
+            <summary>
+            <see cref="T:Com.Bit34Games.Injector.Provider.IInstanceProvider"/> that lazily constructs an instance of
+            <typeparamref name="T"/> using its parameterless constructor on first request and caches
+            it for every subsequent request. Used by <see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToType``1"/>.
+            </summary>
+            <typeparam name="T">Concrete type to instantiate. Must have a parameterless constructor.</typeparam>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.NewInstanceProvider`1.#ctor">
+            <summary>Create a provider that will construct <typeparamref name="T"/> on first <see cref="M:Com.Bit34Games.Injector.Provider.NewInstanceProvider`1.GetInstance(System.Object@,System.Boolean@)"/> call.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.NewInstanceProvider`1.GetInstance(System.Object@,System.Boolean@)">
+            <inheritdoc />
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Provider.SingleInstanceProvider">
+            <summary>
+            <see cref="T:Com.Bit34Games.Injector.Provider.IInstanceProvider"/> that returns a pre-built instance supplied at
+            construction. Used by <see cref="M:Com.Bit34Games.Injector.Provider.IInstanceProviderSetter`1.ToValue(`0)"/>.
+            </summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.SingleInstanceProvider.#ctor(System.Object)">
+            <summary>Wrap <paramref name="instance"/> as a singleton provider.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Provider.SingleInstanceProvider.GetInstance(System.Object@,System.Boolean@)">
+            <inheritdoc />
+        </member>
+        <member name="T:Com.Bit34Games.Injector.Reflection.ReflectionCache">
+            <summary>
+            Per-type cache of <c>[Inject]</c>-tagged fields and writable properties (including
+            inherited members). Built once per target type during <see cref="M:Com.Bit34Games.Injector.IInjector.InjectInto(System.Object,Com.Bit34Games.Injector.IMemberInjector)"/>
+            and reused on subsequent calls for the same type.
+            </summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.Reflection.ReflectionCache.Fields">
+            <summary>All <c>[Inject]</c>-tagged fields, including inherited ones.</summary>
+        </member>
+        <member name="P:Com.Bit34Games.Injector.Reflection.ReflectionCache.Properties">
+            <summary>All <c>[Inject]</c>-tagged writable properties, including inherited ones.</summary>
+        </member>
+        <member name="M:Com.Bit34Games.Injector.Reflection.ReflectionCache.#ctor(System.Type)">
+            <summary>Walk <paramref name="reflectedType"/> and its base chain, collecting
+            <c>[Inject]</c>-tagged fields and writable properties.</summary>
+        </member>
+        <member name="T:InjectAttribute">
+            <summary>
+            Marks a field or property as a target of dependency injection. Members tagged with
+            <c>[Inject]</c> are set during <see cref="M:Com.Bit34Games.Injector.IInjector.InjectInto(System.Object,Com.Bit34Games.Injector.IMemberInjector)"/>
+            using the registered binding for the member's type.
+            </summary>
+            <remarks>
+            <para>This attribute lives in the global namespace by design — usage stays terse
+            (<c>[Inject]</c> rather than <c>[Com.Bit34Games.Injector.Inject]</c>) and no <c>using</c>
+            directive is required at the call site.</para>
+            <para>Public, internal, and private members are all supported. Properties must have a
+            (possibly private) setter; getter-only properties are silently skipped at cache build time.</para>
+            </remarks>
+        </member>
+        <member name="M:InjectAttribute.#ctor">
+            <summary>Default constructor. <c>[Inject]</c> takes no arguments.</summary>
+        </member>
+    </members>
+</doc>
